@@ -6,13 +6,23 @@ import (
 	"net/http"
 )
 
+type UserController struct {
+	UserService *service.UserService
+}
+
+func NewUserController() *UserController {
+	return &UserController{
+		UserService: service.NewUserService(),
+	}
+}
+
 type UpdateProfileRequest struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Phone    string `json:"phone"`
 }
 
-func GetUserProfile(c *gin.Context) {
+func (ctrl *UserController) GetUserProfile(c *gin.Context) {
 	//1.从jwt中间件获取userID
 	userIDAny, exists := c.Get("user_id")
 	if !exists {
@@ -48,7 +58,7 @@ func GetUserProfile(c *gin.Context) {
 	})
 }
 
-func UpdateUserProfile(c *gin.Context) {
+func (ctrl *UserController) UpdateUserProfile(c *gin.Context) {
 	//1.绑定参数
 	req := UpdateProfileRequest{}
 	if err := c.ShouldBind(&req); err != nil {

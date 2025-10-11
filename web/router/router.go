@@ -11,19 +11,23 @@ func InitRouter() *gin.Engine {
 
 	v1 := r.Group("/api/v1")
 	{
-		auth := v1.Group("/auth")
+		authCtrl := controller.NewAuthController()
+		authGroup := v1.Group("/auth")
 		{
-			auth.POST("/register", controller.UserRegister)
-			auth.POST("/login", controller.UserLogin)
+			authGroup.POST("/register", authCtrl.UserRegister)
+			authGroup.POST("/login", authCtrl.UserLogin)
 			//auth.POST("/logout",controller.UserLogout)
 		}
-		user := v1.Group("/user")
+
+		userCtrl := controller.NewUserController()
+		userGroup := v1.Group("/user")
 		{
-			user.Use(middleware.JWTAuthMiddleware("user", "admin"))
+			userGroup.Use(middleware.JWTAuthMiddleware("user", "admin"))
 			{
-				user.GET("/profile", controller.GetUserProfile)
-				user.PUT("/profile", controller.UpdateUserProfile)
+				userGroup.GET("/profile", userCtrl.GetUserProfile)
+				userGroup.PUT("/profile", userCtrl.UpdateUserProfile)
 				//user.DELETE("/profile",controller.DeleteUserProfile)
+				//user.GET("/orders", controller.ListOrders)
 			}
 		}
 	}
