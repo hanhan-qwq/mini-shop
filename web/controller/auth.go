@@ -50,8 +50,7 @@ func (ctrl *AuthController) UserRegister(c *gin.Context) {
 		return
 	}
 	//3.用户注册方法
-	s := service.NewAuthService()
-	err := s.UserRegister(req.Username, req.Password, req.Email, req.Phone)
+	err := ctrl.AuthService.UserRegister(req.Username, req.Password, req.Email, req.Phone)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    -1,
@@ -78,8 +77,7 @@ func (ctrl *AuthController) UserLogin(c *gin.Context) {
 		})
 	}
 	//2.校验用户信息
-	s := service.NewAuthService()
-	accessToken, refreshToken, role, err := s.Login(req.Username, req.Password)
+	accessToken, refreshToken, role, err := ctrl.AuthService.Login(req.Username, req.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    -1,

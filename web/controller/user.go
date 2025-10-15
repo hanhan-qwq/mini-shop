@@ -41,8 +41,7 @@ func (ctrl *UserController) GetUserProfile(c *gin.Context) {
 		return
 	}
 	//2.获取用户信息
-	s := service.NewUserService()
-	profile, err := s.GetProfileByUserID(userID)
+	profile, err := ctrl.UserService.GetProfileByUserID(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":  -1,
@@ -86,8 +85,7 @@ func (ctrl *UserController) UpdateUserProfile(c *gin.Context) {
 		return
 	}
 	//3.更新用户数据
-	s := service.NewUserService()
-	err := s.UpdateUserProfile(userID, req.Username, req.Email, req.Phone)
+	err := ctrl.UserService.UpdateUserProfile(userID, req.Username, req.Email, req.Phone)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    -1,
