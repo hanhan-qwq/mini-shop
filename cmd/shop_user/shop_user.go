@@ -12,6 +12,7 @@ import (
 func main() {
 	config.InitConfig("yaml/config.yaml")
 	global.InitMysql()
+	global.InitProducts()
 
 	r := router.InitRouter()
 	addr := fmt.Sprintf("%s:%d", "localhost", config.AppConfig.Server.Port)
