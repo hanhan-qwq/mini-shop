@@ -30,6 +30,20 @@ func InitRouter() *gin.Engine {
 				//user.GET("/orders", controller.ListOrders)
 			}
 		}
+
+		productCtrl := controller.NewProductController()
+		productGroup := v1.Group("/product")
+		{
+			productGroup.GET("", productCtrl.ListProducts)
+			//productGroup.GET("/:id", productCtrl.GetProduct)
+		}
+
+		admin := v1.Group("/admin")
+		admin.Use(middleware.JWTAuthMiddleware("admin"))
+		{
+			//RegisterAdminProductRoutes(admin)
+			// RegisterAdminOrderRoutes(admin)
+		}
 	}
 
 	return r
