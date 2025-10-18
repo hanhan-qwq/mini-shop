@@ -35,7 +35,7 @@ func InitRouter() *gin.Engine {
 		productGroup := v1.Group("/product")
 		{
 			productGroup.GET("", productCtrl.ListProducts)
-			//productGroup.GET("/:id", productCtrl.GetProduct)
+			productGroup.GET("/:id", productCtrl.GetProduct)
 		}
 
 		admin := v1.Group("/admin")

@@ -43,3 +43,30 @@ func (ctrl *ProductController) ListProducts(c *gin.Context) {
 		"page_size": pageSize,
 	})
 }
+
+func (ctrl *ProductController) GetProduct(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil || id <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    -1,
+			"message": "商品 ID 无效",
+		})
+		return
+	}
+
+	product, err := ctrl.ProductService.GetProduct(uint(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    -1,
+			"message": "商品不存在",
+			"err":     err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"data": product,
+	})
+}

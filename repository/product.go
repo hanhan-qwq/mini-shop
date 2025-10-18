@@ -47,3 +47,11 @@ func (d *ProductDAO) ListProducts(offset, pageSize, categoryID int, keyword, sor
 	}
 	return products, count, nil
 }
+
+func (d *ProductDAO) GetProductByID(id uint) (*model.Product, error) {
+	var product model.Product
+	if err := d.db.Where("id = ? AND status = ?", id, "on_sale").First(&product).Error; err != nil {
+		return nil, err
+	}
+	return &product, nil
+}

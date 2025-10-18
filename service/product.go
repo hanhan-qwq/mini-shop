@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"mini_shop/model"
 	"mini_shop/repository"
 )
@@ -25,4 +26,12 @@ func (s *ProductService) ListProducts(page, pageSize, categoryID int, keyword, s
 
 	offset := (page - 1) * pageSize
 	return s.ProductDB.ListProducts(offset, pageSize, categoryID, keyword, sort)
+}
+
+func (s *ProductService) GetProduct(id uint) (*model.Product, error) {
+	product, err := s.ProductDB.GetProductByID(id)
+	if err != nil {
+		return nil, errors.New("商品不存在或已下架")
+	}
+	return product, nil
 }
