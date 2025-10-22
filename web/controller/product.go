@@ -2,7 +2,9 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"mini_shop/model"
 	"mini_shop/service"
+	"mini_shop/web/request"
 	"net/http"
 	"strconv"
 )
@@ -69,4 +71,90 @@ func (ctrl *ProductController) GetProduct(c *gin.Context) {
 		"code": 0,
 		"data": product,
 	})
+}
+
+func (ctrl *ProductController) CreateProduct(c *gin.Context) {
+	var req request.CreateProductRequest
+
+	// 1.绑定请求体
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    -1,
+			"message": "请求参数错误",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	product := &model.Product{
+		Name:        req.Name,
+		Description: req.Description,
+		Price:       req.Price,
+		Stock:       req.Stock,
+		ImageURL:    req.ImageURL,
+		Status:      req.Status,
+	}
+
+	if req.CategoryID != 0 {
+		product.CategoryID = &req.CategoryID
+	}
+
+	// 2.调用 service 层创建商品
+	if err := ctrl.ProductService.CreateProduct(product); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    -1,
+			"message": "创建商品失败",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	// 3.返回结果
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "创建成功",
+		"data":    req,
+	})
+}
+
+func (ctrl *ProductController) UpdateProduct(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	var req request.UpdateProductRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    -1,
+			"message": "请求参数错误",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	if err := ctrl.ProductService.UpdateProduct(uint(id), &req); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    -1,
+			"message": "更新失败",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "更新成功",
+	})
+}
+
+func (ctrl *ProductController) DeleteProduct(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	if err := ctrl.ProductService.DeleteProduct(uint(id)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "message": "删除失败", "error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "删除成功"})
+}
+func (ctrl *ProductController) AdminListProducts(c *gin.Context) {
+
 }

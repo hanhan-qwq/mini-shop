@@ -39,10 +39,9 @@ func InitRouter() *gin.Engine {
 		}
 
 		admin := v1.Group("/admin")
-		admin.Use(middleware.JWTAuthMiddleware("admin"))
 		{
-			//RegisterAdminProductRoutes(admin)
-			// RegisterAdminOrderRoutes(admin)
+			RegisterAdminProductRoutes(admin)
+			//RegisterAdminOrderRoutes(admin)
 		}
 	}
 

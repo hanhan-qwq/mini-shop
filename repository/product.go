@@ -55,3 +55,15 @@ func (d *ProductDAO) GetProductByID(id uint) (*model.Product, error) {
 	}
 	return &product, nil
 }
+
+func (d *ProductDAO) CreateProduct(product *model.Product) error {
+	return d.db.Create(product).Error
+}
+
+func (d *ProductDAO) UpdateProduct(product *model.Product) error {
+	return d.db.Save(product).Error //不用updates是为里跳过0值更新（例如stock为0和默认值一样时，updates就会默认跳过更新）
+}
+
+func (d *ProductDAO) DeleteProduct(id uint) error {
+	return d.db.Delete(&model.Product{}, id).Error
+}
