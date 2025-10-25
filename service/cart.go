@@ -11,3 +11,7 @@ func NewCartService() *CartService {
 		CartDAO: repository.NewCartDAO(),
 	}
 }
+
+func (service *CartService) AddToCart(userId uint, productId uint, quantity int) error {
+	return service.CartDAO.AddToCart(userId, productId, quantity)
+}

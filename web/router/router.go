@@ -43,6 +43,15 @@ func InitRouter() *gin.Engine {
 			RegisterAdminProductRoutes(admin)
 			//RegisterAdminOrderRoutes(admin)
 		}
+
+		cartCtrl := controller.NewCartController()
+		cartGroup := v1.Group("/cart")
+		{
+			cartGroup.Use(middleware.JWTAuthMiddleware("user", "admin"))
+			{
+				cartGroup.POST("", cartCtrl.AddToCart)
+			}
+		}
 	}
 
 	return r

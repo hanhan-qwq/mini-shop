@@ -3,6 +3,7 @@ package repository
 import (
 	"gorm.io/gorm"
 	"mini_shop/global"
+	"mini_shop/model"
 )
 
 type CartDAO struct {
@@ -13,4 +14,22 @@ func NewCartDAO() *CartDAO {
 	return &CartDAO{
 		db: global.GetDB(),
 	}
+}
+
+func (d *CartDAO) AddToCart(userId uint, productId uint, quantity int) error {
+	var cartItem model.CartItem
+
+	err := d.db.Where("user_id = ? AND product_id = ?", userId, productId).Find(&cartItem)
+	if err == nil {
+		cartItem.Quantity += quantity
+		return d.db.Save(&cartItem).Error
+	}
+
+	cartItem = model.CartItem{
+		UserID:    userId,
+		ProductID: productId,
+		Quantity:  quantity,
+	}
+
+	return d.db.Create(&cartItem).Error
 }
