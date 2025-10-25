@@ -31,7 +31,10 @@ func InitMysql() {
 		log.Fatalln("创建 users 表失败: ", err)
 	}
 	if err := client.AutoMigrate(&model.Product{}); err != nil {
-		log.Fatalln("创建 products 表失败：", err)
+		log.Fatalln("创建 products 表失败: ", err)
+	}
+	if err := client.AutoMigrate(&model.CartItem{}); err != nil {
+		log.Fatalln("创建 cartItems 表失败: ", err)
 	}
 
 }
