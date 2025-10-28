@@ -50,3 +50,7 @@ func (d *CartDAO) GetCartItem(userID uint, productID uint) (*model.CartItem, err
 func (d *CartDAO) UpdateCartItem(item *model.CartItem) error {
 	return d.db.Save(item).Error
 }
+
+func (d *CartDAO) DeleteCartItem(item *model.CartItem) error {
+	return d.db.Delete(item).Error
+}

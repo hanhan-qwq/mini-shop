@@ -79,3 +79,15 @@ func (s *CartService) UpdateItem(userID uint, productID uint, quantity int) erro
 	cartItem.Quantity = quantity
 	return s.CartDAO.UpdateCartItem(cartItem)
 }
+
+func (s *CartService) DeleteItem(userID uint, productID uint) error {
+	cartItem, err := s.CartDAO.GetCartItem(userID, productID)
+	if err != nil {
+		return err
+	}
+	if cartItem == nil {
+		return errors.New("购物车中无此商品")
+	}
+
+	return s.CartDAO.DeleteCartItem(cartItem)
+}

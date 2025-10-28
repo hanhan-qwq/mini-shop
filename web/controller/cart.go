@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"mini_shop/service"
 	"mini_shop/web/request"
@@ -19,7 +20,7 @@ func NewCartController() *CartController {
 
 // AddToCart POST /api/v1/cart
 func (ctrl *CartController) AddToCart(c *gin.Context) {
-	userId, exists := c.Get("user_id")
+	userID, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    "-1",
@@ -38,7 +39,8 @@ func (ctrl *CartController) AddToCart(c *gin.Context) {
 		return
 	}
 
-	err := ctrl.CartService.AddToCart(userId.(uint), req.ProductID, req.Quantity)
+	fmt.Print(userID, req.ProductID)
+	err := ctrl.CartService.AddToCart(userID.(uint), req.ProductID, req.Quantity)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    "-1",
@@ -91,7 +93,7 @@ func (ctrl *CartController) UpdateItem(c *gin.Context) {
 		})
 	}
 
-	userId, exists := c.Get("user_id")
+	userID, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    "-1",
@@ -99,7 +101,7 @@ func (ctrl *CartController) UpdateItem(c *gin.Context) {
 		})
 	}
 
-	err := ctrl.CartService.UpdateItem(userId.(uint), req.ProductID, req.Quantity)
+	err := ctrl.CartService.UpdateItem(userID.(uint), req.ProductID, req.Quantity)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    "-1",
@@ -111,5 +113,38 @@ func (ctrl *CartController) UpdateItem(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    "0",
 		"message": "更新购物车成功",
+	})
+}
+
+func (ctrl *CartController) DeleteItem(c *gin.Context) {
+	var req request.DeleteCartRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    "-1",
+			"message": "参数绑定失败",
+			"error":   err.Error(),
+		})
+	}
+
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    "-1",
+			"message": "用户未登录",
+		})
+	}
+
+	err := ctrl.CartService.DeleteItem(userID.(uint), req.ProductID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    "-1",
+			"message": "商品从购物车移除失败",
+			"error":   err,
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    "0",
+		"message": "商品成功从购物车移除",
 	})
 }
