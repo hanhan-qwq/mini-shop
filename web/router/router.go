@@ -49,7 +49,7 @@ func InitRouter() *gin.Engine {
 		{
 			cartGroup.Use(middleware.JWTAuthMiddleware("user", "admin"))
 			{
-				cartGroup.POST("", cartCtrl.AddToCart)
+				cartGroup.POST("", cartCtrl.CreateItem)
 				cartGroup.GET("", cartCtrl.GetCart)
 				cartGroup.PUT("", cartCtrl.UpdateItem)
 				cartGroup.DELETE("", cartCtrl.DeleteItem)

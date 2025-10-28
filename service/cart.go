@@ -2,6 +2,8 @@ package service
 
 import (
 	"errors"
+	"gorm.io/gorm"
+	"mini_shop/model"
 	"mini_shop/repository"
 )
 
@@ -27,8 +29,24 @@ type CartItemResponse struct {
 	Checked   bool    `json:"checked"`
 }
 
-func (s *CartService) AddToCart(userID uint, productID uint, quantity int) error {
-	return s.CartDAO.AddToCart(userID, productID, quantity)
+func (s *CartService) CreateItem(userID uint, productID uint, quantity int) error {
+	item, err := s.CartDAO.GetCartItem(userID, productID)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) { // 非 “记录不存在” 的错误需要处理
+		return err
+	}
+
+	if item != nil {
+		item.Quantity += quantity
+		return s.CartDAO.UpdateCartItem(item)
+	}
+
+	newItem := model.CartItem{
+		UserID:    userID,
+		ProductID: productID,
+		Quantity:  quantity,
+	}
+
+	return s.CartDAO.CreateItem(&newItem)
 }
 
 func (s *CartService) GetCart(userID uint) ([]CartItemResponse, float64, error) {

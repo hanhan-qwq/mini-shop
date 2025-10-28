@@ -18,8 +18,8 @@ func NewCartController() *CartController {
 	}
 }
 
-// AddToCart POST /api/v1/cart
-func (ctrl *CartController) AddToCart(c *gin.Context) {
+// CreateItem POST /api/v1/cart
+func (ctrl *CartController) CreateItem(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -29,7 +29,7 @@ func (ctrl *CartController) AddToCart(c *gin.Context) {
 		return
 	}
 
-	var req request.AddToCartRequest
+	var req request.CreateItemRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    "-1",
@@ -40,7 +40,7 @@ func (ctrl *CartController) AddToCart(c *gin.Context) {
 	}
 
 	fmt.Print(userID, req.ProductID)
-	err := ctrl.CartService.AddToCart(userID.(uint), req.ProductID, req.Quantity)
+	err := ctrl.CartService.CreateItem(userID.(uint), req.ProductID, req.Quantity)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    "-1",
