@@ -19,7 +19,7 @@ func NewCartDAO() *CartDAO {
 func (d *CartDAO) AddToCart(userId uint, productId uint, quantity int) error {
 	var cartItem model.CartItem
 
-	err := d.db.Where("user_id = ? AND product_id = ?", userId, productId).Find(&cartItem).Error
+	err := d.db.Where("user_id = ? AND product_id = ?", userId, productId).First(&cartItem).Error
 	if err == nil {
 		cartItem.Quantity += quantity
 		return d.db.Save(&cartItem).Error
