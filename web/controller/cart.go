@@ -53,3 +53,29 @@ func (ctrl *CartController) AddToCart(c *gin.Context) {
 		"message": "添加购物车成功",
 	})
 }
+
+// GetCart Get /api/v1/cart
+func (ctrl *CartController) GetCart(c *gin.Context) {
+	userId, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    "-1",
+			"message": "用户未登录",
+		})
+	}
+
+	items, total, err := ctrl.CartService.GetCart(userId.(uint))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    "-1",
+			"message": "获取购物车列表失败",
+			"error":   err,
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":        "0",
+		"message":     "成功获取购物车信息",
+		"data":        items,
+		"total_price": total,
+	})
+}

@@ -50,6 +50,7 @@ func InitRouter() *gin.Engine {
 			cartGroup.Use(middleware.JWTAuthMiddleware("user", "admin"))
 			{
 				cartGroup.POST("", cartCtrl.AddToCart)
+				cartGroup.GET("", cartCtrl.GetCart)
 			}
 		}
 	}
