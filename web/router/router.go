@@ -51,6 +51,7 @@ func InitRouter() *gin.Engine {
 			{
 				cartGroup.POST("", cartCtrl.AddToCart)
 				cartGroup.GET("", cartCtrl.GetCart)
+				cartGroup.PUT("", cartCtrl.UpdateItem)
 			}
 		}
 	}

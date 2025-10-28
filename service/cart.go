@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"mini_shop/repository"
 )
 
@@ -26,12 +27,12 @@ type CartItemResponse struct {
 	Checked   bool    `json:"checked"`
 }
 
-func (s *CartService) AddToCart(userId uint, productId uint, quantity int) error {
-	return s.CartDAO.AddToCart(userId, productId, quantity)
+func (s *CartService) AddToCart(userID uint, productID uint, quantity int) error {
+	return s.CartDAO.AddToCart(userID, productID, quantity)
 }
 
-func (s *CartService) GetCart(userId uint) ([]CartItemResponse, float64, error) {
-	items, err := s.CartDAO.GetCartItemsByUserID(userId)
+func (s *CartService) GetCart(userID uint) ([]CartItemResponse, float64, error) {
+	items, err := s.CartDAO.GetCartItemsByUserID(userID)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -63,4 +64,18 @@ func (s *CartService) GetCart(userId uint) ([]CartItemResponse, float64, error) 
 	}
 
 	return cartList, total, nil
+}
+
+func (s *CartService) UpdateItem(userID uint, productID uint, quantity int) error {
+	cartItem, err := s.CartDAO.GetCartItem(userID, productID)
+	if err != nil {
+		return err
+	}
+
+	if cartItem == nil {
+		return errors.New("购物车中无此商品")
+	}
+
+	cartItem.Quantity = quantity
+	return s.CartDAO.UpdateCartItem(cartItem)
 }

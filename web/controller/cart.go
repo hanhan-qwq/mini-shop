@@ -79,3 +79,37 @@ func (ctrl *CartController) GetCart(c *gin.Context) {
 		"total_price": total,
 	})
 }
+
+// UpdateItem PUT /api/v1/cart/update
+func (ctrl *CartController) UpdateItem(c *gin.Context) {
+	var req request.UpdateCartRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    "-1",
+			"message": "参数绑定失败",
+			"error":   err.Error(),
+		})
+	}
+
+	userId, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    "-1",
+			"message": "用户未登录",
+		})
+	}
+
+	err := ctrl.CartService.UpdateItem(userId.(uint), req.ProductID, req.Quantity)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    "-1",
+			"message": "更新购物车失败",
+			"error":   err,
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    "0",
+		"message": "更新购物车成功",
+	})
+}

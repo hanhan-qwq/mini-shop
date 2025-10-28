@@ -40,3 +40,13 @@ func (d *CartDAO) GetCartItemsByUserID(userId uint) ([]model.CartItem, error) {
 	err := d.db.Where("user_id = ?", userId).Find(&cartItems).Error
 	return cartItems, err
 }
+
+func (d *CartDAO) GetCartItem(userID uint, productID uint) (*model.CartItem, error) {
+	var cartItem model.CartItem
+	err := d.db.Where("user_id = ? AND product_id = ?", userID, productID).Find(&cartItem).Error
+	return &cartItem, err
+}
+
+func (d *CartDAO) UpdateCartItem(item *model.CartItem) error {
+	return d.db.Save(item).Error
+}

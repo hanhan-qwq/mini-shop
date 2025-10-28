@@ -4,3 +4,8 @@ type AddToCartRequest struct {
 	ProductID uint `json:"product_id" binding:"required"`
 	Quantity  int  `json:"quantity" binding:"required,gt=0"`
 }
+
+type UpdateCartRequest struct {
+	ProductID uint `json:"product_id" binding:"required"`
+	Quantity  int  `json:"quantity" binding:"required,gte=0"`
+}
