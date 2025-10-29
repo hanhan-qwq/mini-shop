@@ -2,6 +2,7 @@ package repository
 
 import (
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"mini_shop/global"
 	"mini_shop/model"
 )
@@ -54,6 +55,19 @@ func (d *ProductDAO) GetProductByID(id uint) (*model.Product, error) {
 		return nil, err
 	}
 	return &product, nil
+}
+func (d *ProductDAO) GetProductByIDWithLock(tx *gorm.DB, id uint) (*model.Product, error) {
+	var product model.Product
+	// 用 tx 执行，加悲观锁（FOR UPDATE），防止并发修改
+	return &product, tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("id = ?", id).First(&product).Error
+}
+
+func (d *ProductDAO) DecreaseStockInTx(tx *gorm.DB, id uint, quantity int) error {
+	// 用 tx 执行，确保扣库存操作在事务内
+	return tx.Model(&model.Product{}).
+		Where("id = ?", id).
+		Update("stock", gorm.Expr("stock - ?", quantity)).Error
 }
 
 func (d *ProductDAO) CreateProduct(product *model.Product) error {

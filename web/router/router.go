@@ -55,6 +55,15 @@ func InitRouter() *gin.Engine {
 				cartGroup.DELETE("", cartCtrl.DeleteItem)
 			}
 		}
+
+		orderCtrl := controller.NewOrderController()
+		orderGroup := v1.Group("/order")
+		{
+			orderGroup.Use(middleware.JWTAuthMiddleware("user", "admin"))
+			{
+				orderGroup.POST("/create", orderCtrl.CreateOrder)
+			}
+		}
 	}
 
 	return r

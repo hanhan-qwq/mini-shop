@@ -36,6 +36,12 @@ func InitMysql() {
 	if err := client.AutoMigrate(&model.CartItem{}); err != nil {
 		log.Fatalln("创建 cartItems 表失败: ", err)
 	}
+	if err := client.AutoMigrate(&model.Order{}); err != nil {
+		log.Fatalln("创建 order 表失败: ", err)
+	}
+	if err := client.AutoMigrate(&model.OrderItem{}); err != nil {
+		log.Fatalln("创建 orderItems 表失败: ", err)
+	}
 
 }
 
