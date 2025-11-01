@@ -25,12 +25,19 @@ func NewOrderService() *OrderService {
 	}
 }
 
-func (s *OrderService) CreateOrder(userID uint, remark string, itemReqs []request.CreateOrderItemRequest) error {
+type GetOrderDetailResponse struct {
+	Order model.Order       `json:"order"`
+	Items []model.OrderItem `json:"items"`
+}
+
+func (s *OrderService) CreateOrder(userID uint, remark string, itemReqs []request.CreateOrderItemRequest) (*model.Order, error) {
 	if len(itemReqs) == 0 {
-		return errors.New("订单项不能为空")
+		return nil, errors.New("订单项不能为空")
 	}
 
-	return s.DB.Transaction(func(tx *gorm.DB) error {
+	var order *model.Order
+
+	err := s.DB.Transaction(func(tx *gorm.DB) error {
 		var items []model.OrderItem
 		var total float64
 
@@ -66,7 +73,7 @@ func (s *OrderService) CreateOrder(userID uint, remark string, itemReqs []reques
 
 		//   5 创建订单
 		orderNo := fmt.Sprintf("OD%s%d", uuid.New().String()[:8], userID)
-		order := &model.Order{
+		order = &model.Order{
 			OrderNo:    orderNo,
 			UserID:     userID,
 			TotalPrice: total,
@@ -80,4 +87,23 @@ func (s *OrderService) CreateOrder(userID uint, remark string, itemReqs []reques
 
 		return nil
 	})
+
+	return order, err
+}
+
+func (s *OrderService) GetOrderDetail(userID, orderID uint) (*GetOrderDetailResponse, error) {
+	order, err := s.OrderDAO.GetOrderByID(userID, orderID)
+	if err != nil {
+		return nil, errors.New("订单不存在或无权访问")
+	}
+
+	items, err := s.OrderDAO.GetOrderItems(order.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &GetOrderDetailResponse{
+		Order: *order,
+		Items: items,
+	}, nil
 }

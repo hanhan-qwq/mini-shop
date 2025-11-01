@@ -5,6 +5,7 @@ import (
 	"mini_shop/service"
 	"mini_shop/web/request"
 	"net/http"
+	"strconv"
 )
 
 // OrderController 订单控制器
@@ -43,7 +44,7 @@ func (ctrl *OrderController) CreateOrder(c *gin.Context) {
 	}
 
 	// 3. 调用服务层创建订单
-	err := ctrl.OrderService.CreateOrder(
+	order, err := ctrl.OrderService.CreateOrder(
 		userID.(uint), // 转换用户ID类型
 		req.Remark,
 		req.Items,
@@ -61,43 +62,56 @@ func (ctrl *OrderController) CreateOrder(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "创建订单成功",
+		"data": gin.H{
+			"order_id":    order.ID,
+			"order_no":    order.OrderNo,
+			"total_price": order.TotalPrice,
+		},
 	})
 }
 
-// GetOrder 查看订单详情
-//func (ctrl *OrderController) GetOrder(c *gin.Context) {
-//	// 1. 解析订单ID
-//	idStr := c.Param("id")
-//	id, err := strconv.Atoi(idStr)
-//	if err != nil || id <= 0 {
-//		c.JSON(http.StatusBadRequest, gin.H{
-//			"code":    -1,
-//			"message": "订单ID无效",
-//		})
-//		return
-//	}
-//
-//	// 2. 获取当前用户ID（验证权限）
-//	userID, _ := c.Get("user_id")
-//
-//	// 3. 调用服务层查询订单
-//	order, err := ctrl.OrderService.GetOrderDetail(uint(id), userID.(uint))
-//	if err != nil {
-//		c.JSON(http.StatusNotFound, gin.H{
-//			"code":    -1,
-//			"message": "查询订单失败",
-//			"error":   err.Error(),
-//		})
-//		return
-//	}
-//
-//	// 4. 返回订单详情
-//	c.JSON(http.StatusOK, gin.H{
-//		"code": 0,
-//		"data": order,
-//	})
-//}
-//
+// GetOrderDetail 查看订单详情
+func (ctrl *OrderController) GetOrderDetail(c *gin.Context) {
+	// 1. 解析订单ID
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil || id <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    -1,
+			"message": "订单ID无效",
+		})
+		return
+	}
+
+	// 2. 获取当前用户ID（验证权限）
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":    -1,
+			"message": "用户未登录",
+		})
+		return
+	}
+
+	// 3. 调用服务层查询订单
+	orderDetail, err := ctrl.OrderService.GetOrderDetail(uint(id), userID.(uint))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    -1,
+			"message": "查询订单失败",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	// 4. 返回订单详情
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "查询成功",
+		"detail":  orderDetail,
+	})
+}
+
 //// ListOrders 分页查询用户订单列表
 //func (ctrl *OrderController) ListOrders(c *gin.Context) {
 //	// 1. 获取分页参数

@@ -28,3 +28,19 @@ func (d *OrderDAO) CreateOrderInTx(tx *gorm.DB, order *model.Order, items []mode
 	}
 	return nil
 }
+
+func (d *OrderDAO) GetOrderByID(userID, orderID uint) (*model.Order, error) {
+	var order model.Order
+	if err := d.db.Where("id = ? AND user_id = ?", orderID, userID).First(&order).Error; err != nil {
+		return nil, err
+	}
+	return &order, nil
+}
+
+func (d *OrderDAO) GetOrderItems(orderID uint) ([]model.OrderItem, error) {
+	var items []model.OrderItem
+	if err := d.db.Where("order_id = ?", orderID).Find(&items).Error; err != nil {
+		return nil, err
+	}
+	return items, nil
+}
