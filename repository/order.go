@@ -44,3 +44,37 @@ func (d *OrderDAO) GetOrderItems(orderID uint) ([]model.OrderItem, error) {
 	}
 	return items, nil
 }
+
+// FindUserOrders 查询用户订单（分页 + 状态过滤）
+func (d *OrderDAO) FindUserOrders(userID uint, page, pageSize, status int) ([]model.Order, int64, error) {
+	var (
+		orders []model.Order
+		count  int64
+	)
+
+	query := d.db.Model(&model.Order{}).Where("user_id = ?", userID)
+
+	// 状态过滤（status=0 表示全部）
+	if status != 0 {
+		query = query.Where("status = ?", status)
+	}
+
+	// 统计总数
+	if err := query.Count(&count).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// 查询分页数据（按创建时间倒序）
+	offset := (page - 1) * pageSize
+	err := query.
+		Order("created_at desc").
+		Offset(offset).
+		Limit(pageSize).
+		Find(&orders).Error
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return orders, count, nil
+}

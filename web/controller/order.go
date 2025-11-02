@@ -112,49 +112,49 @@ func (ctrl *OrderController) GetOrderDetail(c *gin.Context) {
 	})
 }
 
-//// ListOrders 分页查询用户订单列表
-//func (ctrl *OrderController) ListOrders(c *gin.Context) {
-//	// 1. 获取分页参数
-//	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-//	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
-//	status, _ := strconv.Atoi(c.DefaultQuery("status", "0")) // 0表示全部状态
-//
-//	// 2. 获取当前用户ID
-//	userID, exists := c.Get("user_id")
-//	if !exists {
-//		c.JSON(http.StatusUnauthorized, gin.H{
-//			"code":    -1,
-//			"message": "请先登录",
-//		})
-//		return
-//	}
-//
-//	// 3. 调用服务层查询订单列表
-//	orders, count, err := ctrl.OrderService.ListUserOrders(
-//		userID.(uint),
-//		page,
-//		pageSize,
-//		status,
-//	)
-//	if err != nil {
-//		c.JSON(http.StatusInternalServerError, gin.H{
-//			"code":    -1,
-//			"message": "查询订单列表失败",
-//			"error":   err.Error(),
-//		})
-//		return
-//	}
-//
-//	// 4. 返回分页结果
-//	c.JSON(http.StatusOK, gin.H{
-//		"code":      0,
-//		"orders":    orders,
-//		"count":     count,
-//		"page":      page,
-//		"page_size": pageSize,
-//	})
-//}
-//
+// ListOrders 分页查询用户订单列表
+func (ctrl *OrderController) ListOrders(c *gin.Context) {
+	// 1. 获取分页参数
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
+	status, _ := strconv.Atoi(c.DefaultQuery("status", "0")) // 0表示全部状态
+
+	// 2. 获取当前用户ID
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"code":    -1,
+			"message": "请先登录",
+		})
+		return
+	}
+
+	// 3. 调用服务层查询订单列表
+	orders, count, err := ctrl.OrderService.ListUserOrders(
+		userID.(uint),
+		page,
+		pageSize,
+		status,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    -1,
+			"message": "查询订单列表失败",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	// 4. 返回分页结果
+	c.JSON(http.StatusOK, gin.H{
+		"code":      0,
+		"orders":    orders,
+		"count":     count,
+		"page":      page,
+		"page_size": pageSize,
+	})
+}
+
 //// PayOrder 支付订单
 //func (ctrl *OrderController) PayOrder(c *gin.Context) {
 //	// 1. 解析订单号

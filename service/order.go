@@ -107,3 +107,20 @@ func (s *OrderService) GetOrderDetail(userID, orderID uint) (*GetOrderDetailResp
 		Items: items,
 	}, nil
 }
+
+func (s *OrderService) ListUserOrders(userID uint, page, pageSize, status int) ([]model.Order, int64, error) {
+	if page <= 0 {
+		page = 1
+	}
+	if pageSize <= 0 {
+		pageSize = 10
+	}
+
+	// 调用 DAO 查询
+	orders, count, err := s.OrderDAO.FindUserOrders(userID, page, pageSize, status)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return orders, count, nil
+}
