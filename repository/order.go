@@ -4,6 +4,7 @@ import (
 	"gorm.io/gorm"
 	"mini_shop/global"
 	"mini_shop/model"
+	"time"
 )
 
 type OrderDAO struct {
@@ -35,6 +36,15 @@ func (d *OrderDAO) GetOrderByID(userID, orderID uint) (*model.Order, error) {
 		return nil, err
 	}
 	return &order, nil
+}
+
+func (d *OrderDAO) UpdateOrderStatusInTx(tx *gorm.DB, orderID uint, status int, payTime *time.Time) error {
+	return tx.Model(&model.Order{}).
+		Where("id = ?", orderID).
+		Updates(map[string]interface{}{
+			"status":   status,
+			"pay_time": payTime,
+		}).Error
 }
 
 func (d *OrderDAO) GetOrderItems(orderID uint) ([]model.OrderItem, error) {

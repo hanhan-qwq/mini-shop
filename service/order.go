@@ -9,6 +9,7 @@ import (
 	"mini_shop/model"
 	"mini_shop/repository"
 	"mini_shop/web/request"
+	"time"
 )
 
 type OrderService struct {
@@ -123,4 +124,41 @@ func (s *OrderService) ListUserOrders(userID uint, page, pageSize, status int) (
 	}
 
 	return orders, count, nil
+}
+
+func (s *OrderService) PayOrder(orderID uint, userID uint) error {
+	// 1 查询订单信息（不在事务中）
+	order, err := s.OrderDAO.GetOrderByID(orderID, userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("订单不存在")
+		}
+		return err
+	}
+
+	// 2 校验订单状态
+	if order.Status != model.OrderStatusPendingPay {
+		return errors.New("订单状态异常，无法支付")
+	}
+
+	// 3 模拟第三方支付成功（例如：支付宝 / 微信）
+	// 正常项目中你会在支付回调接口再执行更新操作。
+	paySuccess := true
+	if !paySuccess {
+		return errors.New("支付失败，请重试")
+	}
+
+	// 4 支付成功后：开启事务，更新状态
+	return s.DB.Transaction(func(tx *gorm.DB) error {
+		now := time.Now()
+
+		// 更新订单状态为“已支付”
+		if err := s.OrderDAO.UpdateOrderStatusInTx(tx, order.ID, model.OrderStatusPaid, &now); err != nil {
+			return err
+		}
+
+		// 记录支付日志、交易流水...
+
+		return nil
+	})
 }

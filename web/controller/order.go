@@ -155,35 +155,36 @@ func (ctrl *OrderController) ListOrders(c *gin.Context) {
 	})
 }
 
-//// PayOrder 支付订单
-//func (ctrl *OrderController) PayOrder(c *gin.Context) {
-//	// 1. 解析订单号
-//	orderNo := c.Param("order_no")
-//	if orderNo == "" {
-//		c.JSON(http.StatusBadRequest, gin.H{
-//			"code":    -1,
-//			"message": "订单号不能为空",
-//		})
-//		return
-//	}
-//
-//	// 2. 获取支付方式（1:微信，2:支付宝）
-//	payType, _ := strconv.Atoi(c.DefaultPostForm("pay_type", "1"))
-//
-//	// 3. 调用服务层处理支付
-//	err := ctrl.OrderService.PayOrder(orderNo, payType, time.Now())
-//	if err != nil {
-//		c.JSON(http.StatusInternalServerError, gin.H{
-//			"code":    -1,
-//			"message": "支付失败",
-//			"error":   err.Error(),
-//		})
-//		return
-//	}
-//
-//	// 4. 返回支付成功
-//	c.JSON(http.StatusOK, gin.H{
-//		"code":    0,
-//		"message": "支付成功",
-//	})
-//}
+// PayOrder 支付订单
+func (ctrl *OrderController) PayOrder(c *gin.Context) {
+	// 1. 获取用户ID
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"code": -1, "message": "请先登录"})
+		return
+	}
+
+	// 2. 获取订单ID
+	orderID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": -1, "message": "订单ID不合法"})
+		return
+	}
+
+	// 3. 调用服务层处理支付
+	err = ctrl.OrderService.PayOrder(uint(orderID), userID.(uint))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    -1,
+			"message": "支付失败",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	// 4. 返回成功
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "支付成功",
+	})
+}

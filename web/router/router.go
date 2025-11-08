@@ -64,6 +64,7 @@ func InitRouter() *gin.Engine {
 				orderGroup.POST("", orderCtrl.CreateOrder)
 				orderGroup.GET("/:id", orderCtrl.GetOrderDetail)
 				orderGroup.GET("", orderCtrl.ListOrders)
+				orderGroup.POST("/:id/pay", orderCtrl.PayOrder)
 			}
 		}
 	}
